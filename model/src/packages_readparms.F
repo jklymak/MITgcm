@@ -404,6 +404,11 @@ C--   if useRunClock=T, set RUNCLOCK parameters; otherwise just return
       CALL RUNCLOCK_READPARMS( myThid )
 #endif
 
+#ifdef ALLOW_BTFORCING
+C--   if useBTFORCING=T, set btforcing parameters; otherwise just return
+      CALL BTFORCING_READPARMS( myThid )
+#endif
+
 #ifdef ALLOW_MYPACKAGE
 C--   if useMYPACKAGE=T, set mypackage parameters; otherwise just return
       CALL MYPACKAGE_READPARMS( myThid )
