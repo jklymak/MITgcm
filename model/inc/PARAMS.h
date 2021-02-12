@@ -1059,6 +1059,7 @@ C-- Logical flags for selecting packages
       LOGICAL useRunClock
       LOGICAL useEMBED_FILES
       LOGICAL useBTFORCING
+      LOGICAL useVar_Bot_Drag
       LOGICAL useMYPACKAGE
       COMMON /PARM_PACKAGES/
      &        useGAD, useOBCS, useSHAP_FILT, useZONAL_FILT,
@@ -1073,7 +1074,7 @@ C-- Logical flags for selecting packages
      &        useATM2D, useAIM, useAtm_Phys, useFizhi, useGridAlt,
      &        useDiagnostics, useREGRID, useLayers, useMNC,
      &        useRunClock, useEMBED_FILES, useBTFORCING,
-     &        useMYPACKAGE
+     &        useVar_Bot_Drag, useMYPACKAGE
 
 CEH3 ;;; Local Variables: ***
 CEH3 ;;; mode:fortran ***

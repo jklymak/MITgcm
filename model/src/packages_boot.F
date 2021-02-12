@@ -94,6 +94,7 @@ C     data.pkg namelists
      &          useRunClock,
      &          useEMBED_FILES,
      &          useBTFORCING,
+     &          useVar_Bot_Drag,
      &          useMYPACKAGE
 
       _BEGIN_MASTER(myThid)
@@ -159,6 +160,7 @@ c     useGAD          =.FALSE.
       useRunClock     =.FALSE.
       useEMBED_FILES  =.FALSE.
       useBTFORCING    =.FALSE.
+      useVar_Bot_Drag =.FALSE.
       useMYPACKAGE    =.FALSE.
 
 C-    Adjust default to account for pkgs without run-time On/Off switch
@@ -406,6 +408,11 @@ C----- pkgs with a standard "usePKG" On/Off switch in "data.pkg":
 #ifdef ALLOW_BTFORCING
       CALL PACKAGES_PRINT_MSG( useBTFORCING,  'BTFORCING',   ' ' )
 #endif
+
+#ifdef ALLOW_VAR_BOT_DRAG
+      CALL PACKAGES_PRINT_MSG( useVar_Bot_Drag, 'VAR_BOT_DRAG', ' ' )
+#endif
+
 #ifdef ALLOW_MYPACKAGE
       CALL PACKAGES_PRINT_MSG( useMYPACKAGE,  'MYPACKAGE',   ' ' )
 #endif
