@@ -618,6 +618,17 @@ C--   needs to be called after the OASIS_INIT
       ENDIF
 #endif
 
+#ifdef ALLOW_VAR_BOT_DRAG
+      IF (useVar_Bot_Drag) THEN
+# ifdef ALLOW_DEBUG
+        IF (debugMode) CALL
+     &      DEBUG_CALL('VAR_BOT_DRAG_INIT_FIXED',myThid)
+# endif
+        CALL VAR_BOT_DRAG_INIT_FIXED(myThid)
+      ENDIF
+#endif
+
+
 #ifdef ALLOW_MYPACKAGE
       IF (useMYPACKAGE) THEN
 # ifdef ALLOW_DEBUG

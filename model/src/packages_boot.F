@@ -93,6 +93,7 @@ C     data.pkg namelists
      &          useMNC,
      &          useRunClock,
      &          useEMBED_FILES,
+     &          useVar_Bot_Drag,
      &          useMYPACKAGE
 
       _BEGIN_MASTER(myThid)
@@ -157,6 +158,7 @@ c     useGAD          =.FALSE.
       useMNC          =.FALSE.
       useRunClock     =.FALSE.
       useEMBED_FILES  =.FALSE.
+      useVar_Bot_Drag =.FALSE.
       useMYPACKAGE    =.FALSE.
 
 C-    Adjust default to account for pkgs without run-time On/Off switch
@@ -400,6 +402,9 @@ C----- pkgs with a standard "usePKG" On/Off switch in "data.pkg":
 #endif
 #ifdef ALLOW_EMBED_FILES
       CALL PACKAGES_PRINT_MSG( useEMBED_FILES,'EMBED_FILES', ' ' )
+#endif
+#ifdef ALLOW_VAR_BOT_DRAG
+      CALL PACKAGES_PRINT_MSG( useVar_Bot_Drag, 'VAR_BOT_DRAG', ' ' )
 #endif
 #ifdef ALLOW_MYPACKAGE
       CALL PACKAGES_PRINT_MSG( useMYPACKAGE,  'MYPACKAGE',   ' ' )

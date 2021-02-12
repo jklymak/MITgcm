@@ -1058,6 +1058,7 @@ C-- Logical flags for selecting packages
       LOGICAL useMNC
       LOGICAL useRunClock
       LOGICAL useEMBED_FILES
+      LOGICAL useVar_Bot_Drag
       LOGICAL useMYPACKAGE
       COMMON /PARM_PACKAGES/
      &        useGAD, useOBCS, useSHAP_FILT, useZONAL_FILT,
@@ -1071,7 +1072,7 @@ C-- Logical flags for selecting packages
      &        useStreamIce, useICEFRONT, useThSIce, useLand,
      &        useATM2D, useAIM, useAtm_Phys, useFizhi, useGridAlt,
      &        useDiagnostics, useREGRID, useLayers, useMNC,
-     &        useRunClock, useEMBED_FILES,
+     &        useRunClock, useEMBED_FILES, useVar_Bot_Drag,
      &        useMYPACKAGE
 
 CEH3 ;;; Local Variables: ***

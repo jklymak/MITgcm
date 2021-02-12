@@ -404,6 +404,11 @@ C--   if useRunClock=T, set RUNCLOCK parameters; otherwise just return
       CALL RUNCLOCK_READPARMS( myThid )
 #endif
 
+#ifdef ALLOW_VAR_BOT_DRAG
+C--   if useMYPACKAGE=T, set mypackage parameters; otherwise just return
+      CALL VAR_BOT_DRAG_READPARMS( myThid )
+#endif
+
 #ifdef ALLOW_MYPACKAGE
 C--   if useMYPACKAGE=T, set mypackage parameters; otherwise just return
       CALL MYPACKAGE_READPARMS( myThid )
