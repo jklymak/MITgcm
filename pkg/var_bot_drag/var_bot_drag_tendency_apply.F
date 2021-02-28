@@ -280,7 +280,7 @@ C.....Calculate the factors, or return 1 if they aren't being used.
         NfacQ = 1.0
       ENDIF
       WRITE(msgBuf,
-     &           '(A, F10.8, F10.8, F10.8)')
+     &           '(A, F10.6, F10.6, F10.6)')
      &                  'VAR_BOT_DRAG_Nsq2',
      &                    sqrt(Nsq), NfacL, NfacQ
           CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
