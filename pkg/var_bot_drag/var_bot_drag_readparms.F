@@ -56,7 +56,7 @@ C--   Default values for MYPACKAGE
       Var_Bot_Drag_FacFile = ' '
 
 
-      WRITE(msgBuf,'(AA)')
+      WRITE(msgBuf,'(A)')
      &      'VAR_BOT_DRAG_READPARMS: opening data.var_bot_drag'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT , 1)
@@ -69,7 +69,7 @@ C--   Default values for MYPACKAGE
 C     Read parameters from open data file
       READ(UNIT=iUnit,NML=VAR_BOT_DRAG_PARM01)
       WRITE(msgBuf,'(A)')
-     &    'VAR_BOT_DRAG_READPARMS: finished reading data.var_bot_drag'
+     &   'VAR_BOT_DRAG_READPARMS: finished reading data.var_bot_drag'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &    SQUEEZE_RIGHT , 1)
 C     Close the open data file
