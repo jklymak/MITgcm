@@ -146,11 +146,11 @@ C Get the bottom stress...
               kl = kLowC(i,j,bi,bj)
 C.............If needed, figure out Nsq
               CALL GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ)
-             WRITE(msgBuf,'(A, I5, I5, F10.2, F10.2)')
-     &                  'VAR_BOT_DRAG_Nsq',
-     &                   0, kl, NfacL, NfacQ
-             CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-     &                    SQUEEZE_RIGHT , 1)
+C             WRITE(msgBuf,'(A, I5, I5, F10.2, F10.2)')
+C     &                  'VAR_BOT_DRAG_Nsq',
+C     &                   0, kl, NfacL, NfacQ
+C             CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
 
               var_bot_stressv(i,j,bi,bj) =
      &           -var_bot_dragv_linear(i, j, bi, bj) * NfacL *
@@ -279,12 +279,12 @@ C.....Calculate the factors, or return 1 if they aren't being used.
       ELSE
         NfacQ = 1.0
       ENDIF
-      WRITE(msgBuf,
-     &           '(A, F10.6, F10.6, F10.6)')
-     &                  'VAR_BOT_DRAG_Nsq2',
-     &                    sqrt(Nsq), NfacL, NfacQ
-          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-     &                    SQUEEZE_RIGHT , 1)
+C      WRITE(msgBuf,
+C     &           '(A, F10.6, F10.6, F10.6)')
+C     &                  'VAR_BOT_DRAG_Nsq2',
+C     &                    sqrt(Nsq), NfacL, NfacQ
+C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
 
 
       RETURN
