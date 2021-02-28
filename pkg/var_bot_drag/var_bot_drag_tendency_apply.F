@@ -239,16 +239,16 @@ C     &                    SQUEEZE_RIGHT , 1)
         ENDDO
         IF (kup.LT.kl) THEN
 C.......calc Nsq
-C           WRITE(msgBuf,
-C     &           '(A, I5, I5, F10.2, F10.2, F10.4, F10.4)')
-C     &                  'VAR_BOT_DRAG_Nsq',
-C     &                    kup, kl, rC(kup), rC(kL), rhodown,
-C     &                    rhoup
-C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-C     &                    SQUEEZE_RIGHT , 1)
 
           Nsq = gravity*(rhodown - rhoup)/(rC(kup) - rC(kl))
           Nsq = Nsq / rhoNil
+C          WRITE(msgBuf,
+C     &           '(A, I5, I5, F10.2, F10.2, F10.4, F10.4, F10.6)')
+C     &                  'VAR_BOT_DRAG_Nsq',
+C     &                    kup, kl, rC(kup), rC(kL), rhodown,
+C     &                    rhoup, SQRT(Nsq)
+C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
         ELSE
           Nsq = 1.0
         ENDIF
@@ -279,6 +279,13 @@ C.....Calculate the factors, or return 1 if they aren't being used.
       ELSE
         NfacQ = 1.0
       ENDIF
+C      WRITE(msgBuf,
+C     &           '(A, E10.8, E10.8, E10.8)')
+C     &                  'VAR_BOT_DRAG_Nsq2',
+C     &                    sqrt(Nsq), NfacL, NfacQ
+C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
+
 
       RETURN
       END

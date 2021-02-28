@@ -56,8 +56,8 @@ C--   Default values for MYPACKAGE
       Var_Bot_Drag_FacFile = ' '
 
 
-      WRITE(msgBuf,'(AA)') 'VAR_BOT_DRAG_READPARMS: opening ',
-     &                    'data.var_bot_drag'
+      WRITE(msgBuf,'(AA)')
+     &      'VAR_BOT_DRAG_READPARMS: opening data.var_bot_drag'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT , 1)
       CALL OPEN_COPY_DATA_FILE(
