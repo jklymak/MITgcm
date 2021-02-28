@@ -279,12 +279,12 @@ C.....Calculate the factors, or return 1 if they aren't being used.
       ELSE
         NfacQ = 1.0
       ENDIF
-C      WRITE(msgBuf,
-C     &           '(A, E10.8, E10.8, E10.8)')
-C     &                  'VAR_BOT_DRAG_Nsq2',
-C     &                    sqrt(Nsq), NfacL, NfacQ
-C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-C     &                    SQUEEZE_RIGHT , 1)
+      WRITE(msgBuf,
+     &           '(A, F10.8, F10.8, F10.8)')
+     &                  'VAR_BOT_DRAG_Nsq2',
+     &                    sqrt(Nsq), NfacL, NfacQ
+          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     &                    SQUEEZE_RIGHT , 1)
 
 
       RETURN
