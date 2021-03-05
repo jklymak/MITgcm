@@ -87,6 +87,15 @@ CEOP
        ENDIF
 #endif
 
+#ifdef ALLOW_VAR_BOT_DRAG
+       IF ( useVar_Bot_Drag .AND. k.LE.Nr ) THEN
+         CALL VAR_BOT_DRAG_CALC_VISC(
+     I        bi,bj, iMin,iMax,jMin,jMax, k,
+     O        kappaRU, kappaRV,
+     I        myThid)
+       ENDIF
+#endif
+
 #ifdef ALLOW_MY82
        IF ( useMY82 .AND. k.LE.Nr ) THEN
          CALL MY82_CALC_VISC(

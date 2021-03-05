@@ -219,6 +219,15 @@ C--   Set vertical diffusivity contribution from KPP
       ENDIF
 #endif
 
+#ifdef ALLOW_VAR_BOT_DRAG
+      IF (useVar_Bot_Drag) THEN
+         CALL VAR_BOT_DRAG_CALC_DIFF(
+     I        bi,bj,iMin,iMax,jMin,jMax,0,Nr,
+     U        KappaRTr,
+     I        myThid)
+      ENDIF
+#endif
+
 #ifdef ALLOW_MY82
       IF (useMY82) THEN
          CALL MY82_CALC_DIFF(

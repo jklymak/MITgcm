@@ -62,8 +62,8 @@ C     === Local variables ===
         _END_MASTER(myThid)
       ENDIF
       CALL READ_FLD_XYZ_RL(Var_Bot_Drag_FacFile, ' ',
-     &                var_bot_drag_fac(1-OLx,1-OLy,1,1,1), 0, myThid )
-      CALL EXCH_XYZ_RL(var_bot_drag_fac(1-OLx,1-OLy,1,1,1), myThid )
+     &                var_bot_drag_fac, 0, myThid )
+      CALL EXCH_XYZ_RL(var_bot_drag_fac, myThid )
       IF ( debugLevel.GE.debLevZero ) THEN
         _BEGIN_MASTER(myThid)
         WRITE(standardMessageUnit,'(A)')

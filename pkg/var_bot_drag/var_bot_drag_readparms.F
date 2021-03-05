@@ -34,7 +34,7 @@ C     iUnit      :: Work variable for IO unit number
      &       Var_Bot_Drag_uQuadFile, Var_Bot_Drag_vQuadFile,
      &       Var_Bot_Drag_FacFile,
      &       Var_Bot_Drag_LinNPow, Var_Bot_Drag_QuadNPow,
-     &       Var_Bot_Drag_NScale
+     &       Var_Bot_Drag_NScale, Var_Bot_Drag_cfac
 
       IF ( .NOT.useVar_Bot_Drag ) THEN
 C-    pkg MYPACKAGE is not used
@@ -54,6 +54,7 @@ C--   Default values for MYPACKAGE
       Var_Bot_Drag_uQuadFile = ' '
       Var_Bot_Drag_vQuadFile = ' '
       Var_Bot_Drag_FacFile = ' '
+      Var_Bot_Drag_cfac = 1.0
 
 
       WRITE(msgBuf,'(A)')

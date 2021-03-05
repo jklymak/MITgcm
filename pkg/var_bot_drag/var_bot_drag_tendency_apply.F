@@ -56,21 +56,26 @@ C Get the bottom stress...
           DO i=iMin,iMax
             IF (kLowC(i,j,bi,bj).GT.0) THEN
               kl = kLowC(i,j,bi,bj)
+C var_bot_drag_cfac allows some smoothing...
+              var_bot_stressu(i,j,bi,bj) = 
+     &           var_bot_stressu(i,j,bi,bj)*(1.0-Var_Bot_Drag_cfac)
 C.............If needed, figure out Nsq
               CALL GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ)
-              var_bot_stressu(i,j,bi,bj) =
-     &           -var_bot_dragu_linear(i, j, bi, bj) * NFacL *
-     &          uVel(i, j, kl, bi, bj) * recip_drF(kl)
+              var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj) 
+     &            +Var_Bot_Drag_cfac*
+     &            (-var_bot_dragu_linear(i, j, bi, bj)*NFacL*
+     &             uVel(i, j, kl, bi, bj))
 C.............Quadratic
               IF (var_bot_dragu_quadratic(i, j, bi, bj).GT.0) THEN
                 UU = vVel(i,j,kl,bi,bj)*vVel(i,j,kl,bi,bj)
      &             +uVel(i,j,kl,bi,bj)*uVel(i,j,kl,bi,bj)
-                var_bot_stressu(i,j,bi,bj)
-     &            = var_bot_stressu(i,j,bi,bj)
-     &            - var_bot_dragu_quadratic(i, j, bi, bj)
-     &            * SQRT(UU) * NFacQ
-     &            * uVel(i,j,kl,bi,bj) * recip_drF(kl)
+                var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj)  
+     &            +Var_Bot_Drag_cfac * 
+     &            (-var_bot_dragu_quadratic(i, j, bi, bj)
+     &             * SQRT(UU) * NFacQ * uVel(i,j,kl,bi,bj))
               ENDIF
+              var_bot_worku(i,j,bi,bj) = -var_bot_stressu(i,j,bi,bj)*
+     &            uVel(i,j,kl,bi,bj)
             ELSE
               var_bot_stressu(i,j,bi,bj) = 0.0
             ENDIF
@@ -136,7 +141,7 @@ CEOP
 
 C     !LOCAL VARIABLES:
       INTEGER i, j, kl
-      _RL     UU, NfacL, NfacQ
+      _RL     UU, NfacL, NfacQ, Nsq
 
       IF (k.EQ.1) THEN
 C Get the bottom stress...
@@ -144,27 +149,33 @@ C Get the bottom stress...
           DO i=iMin,iMax
             IF (kLowC(i,j,bi,bj).GT.0) THEN
               kl = kLowC(i,j,bi,bj)
+              var_bot_stressv(i,j,bi,bj) = 
+     &          var_bot_stressv(i,j,bi,bj)*(1.0-Var_Bot_Drag_cfac) 
 C.............If needed, figure out Nsq
-              CALL GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ)
+              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
+              var_bot_nsq(i,j,bi,bj) = Nsq 
 C             WRITE(msgBuf,'(A, I5, I5, F10.2, F10.2)')
 C     &                  'VAR_BOT_DRAG_Nsq',
 C     &                   0, kl, NfacL, NfacQ
 C             CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
 C     &                    SQUEEZE_RIGHT , 1)
 
-              var_bot_stressv(i,j,bi,bj) =
-     &           -var_bot_dragv_linear(i, j, bi, bj) * NfacL *
-     &          vVel(i,j,kl,bi,bj) * recip_drF(kl)
+              var_bot_stressv(i,j,bi,bj) = var_bot_stressv(i,j,bi,bj)
+     &               +Var_Bot_Drag_cfac *
+     &           (-var_bot_dragv_linear(i, j, bi, bj) * NfacL *
+     &          vVel(i,j,kl,bi,bj))
 C.............  To do: Quadratic....
               IF (var_bot_dragv_quadratic(i, j, bi, bj).GT.0) THEN
                 UU = vVel(i,j,kl,bi,bj)*vVel(i,j,kl,bi,bj)
      &              +uVel(i,j,kl,bi,bj)*uVel(i,j,kl,bi,bj)
                 var_bot_stressv(i,j,bi,bj)
      &             = var_bot_stressv(i,j,bi,bj)
-     &             - var_bot_dragv_quadratic(i, j, bi, bj)
-     &             * SQRT(UU) * NfacQ *
-     &             * vVel(i,j,kl,bi,bj) * recip_drF(kl)
+     &               +Var_Bot_Drag_cfac *
+     &              (- var_bot_dragv_quadratic(i, j, bi, bj)
+     &               * SQRT(UU) * NfacQ * vVel(i,j,kl,bi,bj))
               ENDIF
+              var_bot_workv(i,j,bi,bj) = -var_bot_stressv(i,j,bi,bj) *
+     &            vVel(i,j,kl,bi,bj)
             ELSE
               var_bot_stressv(i,j,bi,bj) = 0.0
             ENDIF
@@ -187,7 +198,8 @@ C.....Note that var_bot_drag_fac integrates to one in the vertical...
       END
 
 C........................................................
-      SUBROUTINE GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ)
+      SUBROUTINE GetNfac(i, j, bi, bj, kl, myThid, NfacL, 
+     &                   NfacQ, Nsq)
 C.......Get Nsq for the drag coefficients if they have an N dependence.
 C.......NfacL = Nsq ** (LinNpow/2)  where
 C.......Nsq = (max(rho) - min(rho)) / g / (ztop-zbottom)/rho_nil
@@ -205,11 +217,11 @@ C.......overturns).
 
 
       INTEGER i, j, kl, bi, bj, myThid
-      _RL     NfacL, NfacQ
+      _RL     NfacL, NfacQ, Nsq
 C     Local
       CHARACTER*(MAX_LEN_MBUF) msgBuf
       INTEGER kup
-      _RL     rhoup, rhodown, rhotest, Nsq
+      _RL     rhoup, rhodown, rhotest
 
       IF ((Var_Bot_Drag_LinNPow.NE.0).OR.
      &            (Var_Bot_Drag_QuadNPow.NE.0)) THEN
