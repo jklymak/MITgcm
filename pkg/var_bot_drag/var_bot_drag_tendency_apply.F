@@ -48,7 +48,7 @@ CEOP
 
 C     !LOCAL VARIABLES:
       INTEGER i, j, kl
-      _RL     UU, NfacL, NfacQ
+      _RL     UU, NfacL, NfacQ, Nsq
 
       IF (k.EQ.1) THEN
 C Get the bottom stress...
@@ -60,7 +60,7 @@ C var_bot_drag_cfac allows some smoothing...
               var_bot_stressu(i,j,bi,bj) = 
      &           var_bot_stressu(i,j,bi,bj)*(1.0-Var_Bot_Drag_cfac)
 C.............If needed, figure out Nsq
-              CALL GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ)
+              CALL GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ, Nsq)
               var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj) 
      &            +Var_Bot_Drag_cfac*
      &            (-var_bot_dragu_linear(i, j, bi, bj)*NFacL*

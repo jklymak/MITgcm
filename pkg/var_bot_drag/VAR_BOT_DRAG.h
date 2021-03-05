@@ -28,7 +28,7 @@ C     2-dim. fields
       _RL var_bot_stressv(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL var_bot_worku(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL var_bot_workv(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
-      _RL var_bot_Nsq(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
+      _RL var_bot_nsq(1-OLx:sNx+OLx,1-OLy:sNy+OLy,nSx,nSy)
       _RL var_bot_drag_fac(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nSx,nSy)
 
 C     Scalars:

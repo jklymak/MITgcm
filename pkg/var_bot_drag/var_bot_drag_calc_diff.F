@@ -49,9 +49,9 @@ C-    do all levels :
         DO k=1,MIN(Nr,kSize)
          DO j=jMin,jMax
           DO i=iMin,iMax
-            IF (var_bot_nsq.GT.0) THEN
+            IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
               KC = var_bot_worku(i,j,bi,bj) + 
-      &          var_bot_workv(i,j,bi,bj)
+     &          var_bot_workv(i,j,bi,bj)
               KC = KC*0.2*var_bot_drag_fac(i,j,k,bi,bj) 
               KC = KC/var_bot_nsq(i,j,bi,bj)
             ELSE
@@ -72,7 +72,7 @@ C-    do level k=kArg only :
          k = MIN(kArg,kSize)
          DO j=jMin,jMax
           DO i=iMin,iMax
-            IF (var_bot_nsq.GT.0) THEN
+            IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
                   KC = var_bot_worku(i,j,bi,bj) + 
      &                var_bot_workv(i,j,bi,bj)
                   KC = KC*0.2*var_bot_drag_fac(i,j,k,bi,bj) 
