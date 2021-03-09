@@ -76,6 +76,8 @@ C.............Quadratic
               ENDIF
               var_bot_worku(i,j,bi,bj) = -var_bot_stressu(i,j,bi,bj)*
      &            uVel(i,j,kl,bi,bj)
+              var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj)*
+     &            recip_drF(kl)
             ELSE
               var_bot_stressu(i,j,bi,bj) = 0.0
             ENDIF
@@ -176,6 +178,8 @@ C.............  To do: Quadratic....
               ENDIF
               var_bot_workv(i,j,bi,bj) = -var_bot_stressv(i,j,bi,bj) *
      &            vVel(i,j,kl,bi,bj)
+              var_bot_stressv(i,j,bi,bj) = var_bot_stressv(i,j,bi,bj)*
+     &            recip_drF(kl)
             ELSE
               var_bot_stressv(i,j,bi,bj) = 0.0
             ENDIF

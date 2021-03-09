@@ -46,26 +46,26 @@ CEOP
          ELSE
             KC = 0.0
          ENDIF
-C         KU = var_bot_worku(i-1,j,bi,bj)+var_bot_workv(i-1,j,bi,bj)
-C         KU = KU*0.2*var_bot_drag_fac(i-1,j,k,bi,bj) 
-C         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
-C           KU = KU/var_bot_nsq(i,j,bi,bj)
-C         ELSE
-C            KU = 0.0
-C         ENDIF
-C         KV = var_bot_worku(i,j-1,bi,bj)+var_bot_workv(i,j-1,bi,bj)
-C         KV = KV*0.2*var_bot_drag_fac(i,j-1,k,bi,bj) 
-C         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
-C            KV = KV/var_bot_nsq(i,j,bi,bj)
-C         ELSE
-C            KV = 0.0
-C         ENDIF
+         KU = var_bot_worku(i-1,j,bi,bj)+var_bot_workv(i-1,j,bi,bj)
+         KU = KU*0.2*var_bot_drag_fac(i-1,j,k,bi,bj) 
+         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
+           KU = KU/var_bot_nsq(i,j,bi,bj)
+         ELSE
+            KU = 0.0
+         ENDIF
+         KV = var_bot_worku(i,j-1,bi,bj)+var_bot_workv(i,j-1,bi,bj)
+         KV = KV*0.2*var_bot_drag_fac(i,j-1,k,bi,bj) 
+         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
+            KV = KV/var_bot_nsq(i,j,bi,bj)
+         ELSE
+            KV = 0.0
+         ENDIF
          KappaRU(i,j,k) = max ( KappaRU(i,j,k),
      &         KappaRU(i,j,k) - viscArNr(k) + _maskW(i,j,k,bi,bj) *
-     &         0.5*(KC+KC) )
+     &         0.5*(KC+KU) )
          KappaRV(i,j,k) = max ( KappaRV(i,j,k),
      &         KappaRV(i,j,k) - viscArNr(k) + _maskS(i,j,k,bi,bj) *
-     &         0.5*(KC+KC) )
+     &         0.5*(KC+KV) )
        ENDDO
       ENDDO
 
