@@ -38,37 +38,41 @@ C     i, j    :: Loop counters
       _RL KU, KC, KV
 CEOP
       DO j=jMin,jMax
-       DO i=iMin,iMax
-         KC = var_bot_worku(i,j,bi,bj)+var_bot_workv(i,j,bi,bj)
-         KC = KC*0.2*var_bot_drag_fac(i,j,k,bi,bj) 
-         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
+      DO i=iMin,iMax
+        IF (rC(k).LT.(R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj))) 
+     &    THEN
+
+          KC = var_bot_worku(i,j,bi,bj)+var_bot_workv(i,j,bi,bj)
+          KC = KC*0.2* drC(k)/var_bot_vert_scale(i,j,bi,bj) 
+          IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
             KC= KC/var_bot_nsq(i,j,bi,bj)
-         ELSE
+          ELSE
             KC = 0.0
-         ENDIF
-         KU = var_bot_worku(i-1,j,bi,bj)+var_bot_workv(i-1,j,bi,bj)
-         KU = KU*0.2*var_bot_drag_fac(i-1,j,k,bi,bj) 
-         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
-           KU = KU/var_bot_nsq(i,j,bi,bj)
-         ELSE
+          ENDIF
+          KU = var_bot_worku(i-1,j,bi,bj)+var_bot_workv(i-1,j,bi,bj)
+          KU = KU*0.2*drF(k)/var_bot_vert_scale(i-1,j,bi,bj) 
+          IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
+            KU = KU/var_bot_nsq(i,j,bi,bj)
+          ELSE
             KU = 0.0
-         ENDIF
-         KV = var_bot_worku(i,j-1,bi,bj)+var_bot_workv(i,j-1,bi,bj)
-         KV = KV*0.2*var_bot_drag_fac(i,j-1,k,bi,bj) 
-         IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
+          ENDIF
+          KV = var_bot_worku(i,j-1,bi,bj)+var_bot_workv(i,j-1,bi,bj)
+          KV = KV*0.2*drF(k)/var_bot_vert_scale(i,j-1,bi,bj)
+          IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
             KV = KV/var_bot_nsq(i,j,bi,bj)
-         ELSE
+          ELSE
             KV = 0.0
-         ENDIF
-         KappaRU(i,j,k) = max ( KappaRU(i,j,k),
+          ENDIF
+          KappaRU(i,j,k) = max (KappaRU(i,j,k),
      &         KappaRU(i,j,k) - viscArNr(k) + _maskW(i,j,k,bi,bj) *
      &         0.5*(KC+KU) )
-         KappaRV(i,j,k) = max ( KappaRV(i,j,k),
+          KappaRV(i,j,k) = max ( KappaRV(i,j,k),
      &         KappaRV(i,j,k) - viscArNr(k) + _maskS(i,j,k,bi,bj) *
      &         0.5*(KC+KV) )
-       ENDDO
+         ENDIF
+        ENDDO
       ENDDO
-
+      
 #endif /* ALLOW_VAR_BOT_DRAG */
 
       RETURN

@@ -61,9 +61,9 @@ C     === Local variables ===
      &         ' VAR_BOT_DRAG_INIT: Reading drag factor file'
         _END_MASTER(myThid)
       ENDIF
-      CALL READ_FLD_XYZ_RL(Var_Bot_Drag_FacFile, ' ',
-     &                var_bot_drag_fac, 0, myThid )
-      CALL EXCH_XYZ_RL(var_bot_drag_fac, myThid )
+      CALL READ_FLD_XY_RL(Var_Bot_Drag_VertFile, ' ',
+     &                    var_bot_vert_scale, 0, myThid )
+      CALL EXCH_XY_RL(var_bot_vert_scale, myThid )
       IF ( debugLevel.GE.debLevZero ) THEN
         _BEGIN_MASTER(myThid)
         WRITE(standardMessageUnit,'(A)')

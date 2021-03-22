@@ -47,52 +47,100 @@ C     myThid    :: my Thread Id number
 CEOP
 
 C     !LOCAL VARIABLES:
-      INTEGER i, j, kl
-      _RL     UU, NfacL, NfacQ, Nsq
+      INTEGER i, j, kl, kk
+      _RL     UU, NfacL, NfacQ, Nsq, VV, Usq, ddz, ZBL
+      CHARACTER*(MAX_LEN_MBUF) msgBuf
+
 
       IF (k.EQ.1) THEN
 C Get the bottom stress...
         DO j=jMin,jMax
           DO i=iMin,iMax
-            IF (kLowC(i,j,bi,bj).GT.0) THEN
-              kl = kLowC(i,j,bi,bj)
-C var_bot_drag_cfac allows some smoothing...
-              var_bot_stressu(i,j,bi,bj) = 
-     &           var_bot_stressu(i,j,bi,bj)*(1.0-Var_Bot_Drag_cfac)
+            kl = MIN(kLowC(i,j,bi,bj), kLowC(i-1,j,bi,bj))
+            kl = MIN(kl, kLowC(i,j-1,bi,bj))
+            IF (kl.GT.0) THEN
+C calculate the velocity scale of the free-stream
+              kk = kl
+              ddz = 0
+              UU = 0.0
+              VV = 0.0
+              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj))
+     &                  .AND.(kk.GT.0))
+                ddz = ddz + drF(kk)
+                kk = kk-1
+              ENDDO 
+              ddz = 0
+              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj)*0.33)
+     &                  .AND.(kk.GT.0))
+                UU = UU + uVel(i,j,kk,bi,bj) * drF(kk)
+                VV = VV + vVel(i,j,kk,bi,bj) * drF(kk)
+                ddz = ddz + drF(kk)
+                kk = kk-1
+              ENDDO
+              var_bot_vscale(i,j,bi,bj) = VV / ddz
+              var_bot_uscale(i,j,bi,bj) = UU / ddz
 C.............If needed, figure out Nsq
-              CALL GetNfac(i, j, bi, bj, kl, myThid, NfacL, NfacQ, Nsq)
-              var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj) 
-     &            +Var_Bot_Drag_cfac*
-     &            (-var_bot_dragu_linear(i, j, bi, bj)*NFacL*
-     &             uVel(i, j, kl, bi, bj))
+              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
+C DEBUG::::              
+              NfacL = 1.0
+              NfacQ = 1.0
+
+              var_bot_stressu(i,j,bi,bj) = 
+     &            -var_bot_dragu_linear(i, j, bi, bj)*NFacL*
+     &             var_bot_uscale(i,j,bi,bj)
+              var_bot_stressv(i,j,bi,bj) = 
+     &            -var_bot_dragu_linear(i, j, bi, bj)*NFacL*
+     &             var_bot_vscale(i,j,bi,bj)
 C.............Quadratic
               IF (var_bot_dragu_quadratic(i, j, bi, bj).GT.0) THEN
-                UU = vVel(i,j,kl,bi,bj)*vVel(i,j,kl,bi,bj)
-     &             +uVel(i,j,kl,bi,bj)*uVel(i,j,kl,bi,bj)
-                var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj)  
-     &            +Var_Bot_Drag_cfac * 
-     &            (-var_bot_dragu_quadratic(i, j, bi, bj)
-     &             * SQRT(UU) * NFacQ * uVel(i,j,kl,bi,bj))
+                Usq = var_bot_uscale(i,j,bi,bj)*
+     &                var_bot_uscale(i,j,bi,bj) +
+     &                var_bot_vscale(i,j,bi,bj)*
+     &                var_bot_vscale(i,j,bi,bj)                
+                var_bot_stressu(i,j,bi,bj) = 
+     &            var_bot_stressu(i,j,bi,bj)  
+     &            -(var_bot_dragu_quadratic(i, j, bi, bj)
+     &             * SQRT(Usq) * NFacQ * var_bot_uscale(i,j,bi,bj))
+                var_bot_stressv(i,j,bi,bj) = 
+     &            var_bot_stressv(i,j,bi,bj)  
+     &            -(var_bot_dragu_quadratic(i, j, bi, bj)
+     &             * SQRT(Usq) * NFacQ * var_bot_vscale(i,j,bi,bj))
               ENDIF
               var_bot_worku(i,j,bi,bj) = -var_bot_stressu(i,j,bi,bj)*
-     &            uVel(i,j,kl,bi,bj)
-              var_bot_stressu(i,j,bi,bj) = var_bot_stressu(i,j,bi,bj)*
-     &            recip_drF(kl)
+     &            var_bot_uscale(i,j,bi,bj)
+              var_bot_workv(i,j,bi,bj) = -var_bot_stressv(i,j,bi,bj)*
+     &            var_bot_vscale(i,j,bi,bj)
             ELSE
               var_bot_stressu(i,j,bi,bj) = 0.0
+              var_bot_stressv(i,j,bi,bj) = 0.0
             ENDIF
+            IF ((i.EQ.40).AND.(j.EQ.40)) THEN
+              WRITE(msgBuf,
+     &      '(A, I5, I5, E14.6, E14.6, F10.4, F10.4, F10.4, F10.4)')
+     &                  'VAR_BOT_DRAGU ij',
+     &                   k, kl, var_bot_stressu(i,j,bi,bj), 
+     &                   var_bot_stressv(i,j,bi,bj), 
+     &                   var_bot_dragu_quadratic(i, j, bi, bj),
+     &                   var_bot_dragu_linear(i, j, bi, bj),
+     &                   var_bot_uscale(i,j,bi,bj),
+     &                   var_bot_vscale(i,j,bi,bj)      
+              CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     &                    SQUEEZE_RIGHT , 1)
+            ENDIF
+
           ENDDO
         ENDDO
 C.....Done getting the bottom stress
       ENDIF
 
-C.....Apply the bottom stress, weighted by the cell thickness.
-C.....Note that var_bot_drag_fac integrates to one in the vertical...
       DO j=jMin,jMax
        DO i=iMin,iMax
-          gU_arr(i,j) = gU_arr(i,j)
-     &     + maskW(i,j,k,bi,bj) * var_bot_stressu(i,j,bi,bj)
-     &     * var_bot_drag_fac(i,j,k,bi,bj) * drF(k)
+         ZBL = R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj)
+        IF (rC(k).LT.ZBL) THEN
+          gU_arr(i,j) = gU_arr(i,j) + maskW(i,j,k,bi,bj) *
+     &       var_bot_stressu(i,j,bi,bj)/
+     &       var_bot_vert_scale(i,j,bi,bj)
+        ENDIF
        ENDDO
       ENDDO
 
@@ -142,59 +190,21 @@ C     myThid    :: my Thread Id number
 CEOP
 
 C     !LOCAL VARIABLES:
-      INTEGER i, j, kl
-      _RL     UU, NfacL, NfacQ, Nsq
+      INTEGER i, j, kl, kk
+      _RL     ZBL 
 
-      IF (k.EQ.1) THEN
-C Get the bottom stress...
-        DO j=jMin,jMax
-          DO i=iMin,iMax
-            IF (kLowC(i,j,bi,bj).GT.0) THEN
-              kl = kLowC(i,j,bi,bj)
-              var_bot_stressv(i,j,bi,bj) = 
-     &          var_bot_stressv(i,j,bi,bj)*(1.0-Var_Bot_Drag_cfac) 
-C.............If needed, figure out Nsq
-              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
-              var_bot_nsq(i,j,bi,bj) = Nsq 
-C             WRITE(msgBuf,'(A, I5, I5, F10.2, F10.2)')
-C     &                  'VAR_BOT_DRAG_Nsq',
-C     &                   0, kl, NfacL, NfacQ
-C             CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-C     &                    SQUEEZE_RIGHT , 1)
-
-              var_bot_stressv(i,j,bi,bj) = var_bot_stressv(i,j,bi,bj)
-     &               +Var_Bot_Drag_cfac *
-     &           (-var_bot_dragv_linear(i, j, bi, bj) * NfacL *
-     &          vVel(i,j,kl,bi,bj))
-C.............  To do: Quadratic....
-              IF (var_bot_dragv_quadratic(i, j, bi, bj).GT.0) THEN
-                UU = vVel(i,j,kl,bi,bj)*vVel(i,j,kl,bi,bj)
-     &              +uVel(i,j,kl,bi,bj)*uVel(i,j,kl,bi,bj)
-                var_bot_stressv(i,j,bi,bj)
-     &             = var_bot_stressv(i,j,bi,bj)
-     &               +Var_Bot_Drag_cfac *
-     &              (- var_bot_dragv_quadratic(i, j, bi, bj)
-     &               * SQRT(UU) * NfacQ * vVel(i,j,kl,bi,bj))
-              ENDIF
-              var_bot_workv(i,j,bi,bj) = -var_bot_stressv(i,j,bi,bj) *
-     &            vVel(i,j,kl,bi,bj)
-              var_bot_stressv(i,j,bi,bj) = var_bot_stressv(i,j,bi,bj)*
-     &            recip_drF(kl)
-            ELSE
-              var_bot_stressv(i,j,bi,bj) = 0.0
-            ENDIF
-          ENDDO
-        ENDDO
-C.....Done getting the bottom stress
-      ENDIF
+C bottom stress is calculated above in ...APPLY_U
 
 C.....Apply the bottom stress, weighted by teh cell thickness.
-C.....Note that var_bot_drag_fac integrates to one in the vertical...
       DO j=jMin,jMax
        DO i=iMin,iMax
-          gv_arr(i,j) = gv_arr(i,j)
-     &     + maskS(i,j,k,bi,bj) * var_bot_stressv(i,j,bi,bj)
-     &     * var_bot_drag_fac(i,j,k,bi,bj) * drF(k)
+          ZBL = R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj)
+          IF (rC(k).LT.ZBL) THEN
+             gv_arr(i,j) = gv_arr(i,j)
+     &          +maskS(i,j,k,bi,bj)*
+     &          var_bot_stressv(i,j,bi,bj)/
+     &          var_bot_vert_scale(i,j,bi,bj)
+          ENDIF
        ENDDO
       ENDDO
 

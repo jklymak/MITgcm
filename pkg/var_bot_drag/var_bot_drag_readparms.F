@@ -32,7 +32,7 @@ C     iUnit      :: Work variable for IO unit number
       NAMELIST /VAR_BOT_DRAG_PARM01/
      &       Var_Bot_Drag_uLinFile, Var_Bot_Drag_vLinFile,
      &       Var_Bot_Drag_uQuadFile, Var_Bot_Drag_vQuadFile,
-     &       Var_Bot_Drag_FacFile,
+     &       Var_Bot_Drag_VertFile,
      &       Var_Bot_Drag_LinNPow, Var_Bot_Drag_QuadNPow,
      &       Var_Bot_Drag_NScale, Var_Bot_Drag_cfac
 
@@ -53,7 +53,7 @@ C--   Default values for MYPACKAGE
       Var_Bot_Drag_vLinFile = ' '
       Var_Bot_Drag_uQuadFile = ' '
       Var_Bot_Drag_vQuadFile = ' '
-      Var_Bot_Drag_FacFile = ' '
+      Var_Bot_Drag_VertFile = ' '
       Var_Bot_Drag_cfac = 1.0
 
 

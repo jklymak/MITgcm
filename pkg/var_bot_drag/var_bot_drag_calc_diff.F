@@ -14,7 +14,7 @@ C     == GLobal variables ==
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
-c#include "GRID.h"
+#include "GRID.h"
 #ifdef ALLOW_3D_DIFFKR
 # include "DYNVARS.h"
 #endif
@@ -49,10 +49,13 @@ C-    do all levels :
         DO k=1,MIN(Nr,kSize)
          DO j=jMin,jMax
           DO i=iMin,iMax
-            IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
+            IF ((var_bot_nsq(i,j,bi,bj).GT.0).AND.
+     &          (rC(k).LT.
+     &           (R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj))))
+     &         THEN
               KC = var_bot_worku(i,j,bi,bj) + 
      &          var_bot_workv(i,j,bi,bj)
-              KC = KC*0.2*var_bot_drag_fac(i,j,k,bi,bj) 
+              KC = KC*0.2 * drC(k)/var_bot_vert_scale(i,j,bi,bj) 
               KC = KC/var_bot_nsq(i,j,bi,bj)
             ELSE
               KC = 0.0
@@ -72,20 +75,23 @@ C-    do level k=kArg only :
          k = MIN(kArg,kSize)
          DO j=jMin,jMax
           DO i=iMin,iMax
-            IF (var_bot_nsq(i,j,bi,bj).GT.0) THEN
-                  KC = var_bot_worku(i,j,bi,bj) + 
-     &                var_bot_workv(i,j,bi,bj)
-                  KC = KC*0.2*var_bot_drag_fac(i,j,k,bi,bj) 
-                  KC = KC/var_bot_nsq(i,j,bi,bj)
+            IF ((var_bot_nsq(i,j,bi,bj).GT.0).AND.
+     &          (rC(k).LT.
+     &           (R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj))))
+     &         THEN
+              KC = var_bot_worku(i,j,bi,bj) + 
+     &          var_bot_workv(i,j,bi,bj)
+              KC = KC*0.2 * drC(k)/var_bot_vert_scale(i,j,bi,bj) 
+              KC = KC/var_bot_nsq(i,j,bi,bj)
             ELSE
-                  KC = 0.0
+              KC = 0.0
             ENDIF
             KappaRx(i,j,k) = KappaRx(i,j,k)
-     &                  +( KC
+     &                  +(KC
 #ifdef ALLOW_3D_DIFFKR
-     &                     - diffKr(i,j,kArg,bi,bj) )
+     &                     - diffKr(i,j,k,bi,bj) )
 #else
-     &                     - diffKrNrS(kArg) )
+     &                     - diffKrNrS(k) )
 #endif
           ENDDO
          ENDDO
