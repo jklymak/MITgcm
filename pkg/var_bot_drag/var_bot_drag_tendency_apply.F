@@ -70,16 +70,18 @@ C                ddz = ddz + drF(kk)
 C                kk = kk-1
 C              ENDDO 
 C              ddz = 0
-              DO WHILE ((ddz.LT.
-     &                  (var_bot_vert_scale(i,j,bi,bj) * 1.2))
-     &                  .AND.(kk.GT.0))
-                UU = UU + uVel(i,j,kk,bi,bj) * drF(kk)
-                VV = VV + vVel(i,j,kk,bi,bj) * drF(kk)
-                ddz = ddz + drF(kk)
-                kk = kk-1
-              ENDDO
-              var_bot_vscale(i,j,bi,bj) = VV / ddz
-              var_bot_uscale(i,j,bi,bj) = UU / ddz
+C              DO WHILE ((ddz.LT.
+C     &                  (var_bot_vert_scale(i,j,bi,bj) * 1.2))
+C     &                  .AND.(kk.GT.0))
+C                UU = UU + uVel(i,j,kk,bi,bj) * drF(kk)
+C                VV = VV + vVel(i,j,kk,bi,bj) * drF(kk)
+C                ddz = ddz + drF(kk)
+C                kk = kk-1
+C              ENDDO
+C              var_bot_vscale(i,j,bi,bj) = VV / ddz
+C              var_bot_uscale(i,j,bi,bj) = UU / ddz
+              var_bot_vscale(i,j,bi,bj) = vVel(i,j,kl,bi,bj)
+              var_bot_uscale(i,j,bi,bj) = uVel(i,j,kl,bi,bj)
 C.............If needed, figure out Nsq
 C              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
 C DEBUG::::              
