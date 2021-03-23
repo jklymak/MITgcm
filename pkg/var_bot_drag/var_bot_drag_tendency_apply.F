@@ -48,8 +48,8 @@ CEOP
 
 C     !LOCAL VARIABLES:
       INTEGER i, j, kl, kk
-      _RL     UU, NfacL, NfacQ, Nsq, VV, Usq, ddz, ZBL
       CHARACTER*(MAX_LEN_MBUF) msgBuf
+      _RL     UU, NfacL, NfacQ, Nsq, VV, Usq, ddz, ZBL, fac, amp
 
 
       IF (k.EQ.1) THEN
@@ -64,13 +64,14 @@ C calculate the velocity scale of the free-stream
               ddz = 0
               UU = 0.0
               VV = 0.0
-              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj))
-     &                  .AND.(kk.GT.0))
-                ddz = ddz + drF(kk)
-                kk = kk-1
-              ENDDO 
-              ddz = 0
-              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj)*0.33)
+C              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj))
+C     &                  .AND.(kk.GT.0))
+C                ddz = ddz + drF(kk)
+C                kk = kk-1
+C              ENDDO 
+C              ddz = 0
+              DO WHILE ((ddz.LT.
+     &                  (var_bot_vert_scale(i,j,bi,bj) * 1.2))
      &                  .AND.(kk.GT.0))
                 UU = UU + uVel(i,j,kk,bi,bj) * drF(kk)
                 VV = VV + vVel(i,j,kk,bi,bj) * drF(kk)
@@ -80,8 +81,9 @@ C calculate the velocity scale of the free-stream
               var_bot_vscale(i,j,bi,bj) = VV / ddz
               var_bot_uscale(i,j,bi,bj) = UU / ddz
 C.............If needed, figure out Nsq
-              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
+C              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
 C DEBUG::::              
+              var_bot_nsq(i,j,bi,bj) = 1.0E-6
               NfacL = 1.0
               NfacQ = 1.0
 
@@ -89,7 +91,7 @@ C DEBUG::::
      &            -var_bot_dragu_linear(i, j, bi, bj)*NFacL*
      &             var_bot_uscale(i,j,bi,bj)
               var_bot_stressv(i,j,bi,bj) = 
-     &            -var_bot_dragu_linear(i, j, bi, bj)*NFacL*
+     &            -var_bot_dragv_linear(i, j, bi, bj)*NFacL*
      &             var_bot_vscale(i,j,bi,bj)
 C.............Quadratic
               IF (var_bot_dragu_quadratic(i, j, bi, bj).GT.0) THEN
@@ -103,7 +105,7 @@ C.............Quadratic
      &             * SQRT(Usq) * NFacQ * var_bot_uscale(i,j,bi,bj))
                 var_bot_stressv(i,j,bi,bj) = 
      &            var_bot_stressv(i,j,bi,bj)  
-     &            -(var_bot_dragu_quadratic(i, j, bi, bj)
+     &            -(var_bot_dragv_quadratic(i, j, bi, bj)
      &             * SQRT(Usq) * NFacQ * var_bot_vscale(i,j,bi,bj))
               ENDIF
               var_bot_worku(i,j,bi,bj) = -var_bot_stressu(i,j,bi,bj)*
@@ -116,14 +118,15 @@ C.............Quadratic
             ENDIF
             IF ((i.EQ.40).AND.(j.EQ.40)) THEN
               WRITE(msgBuf,
-     &      '(A, I5, I5, E14.6, E14.6, F10.4, F10.4, F10.4, F10.4)')
+     & '(A, I5, I5, E14.6, E14.6, F10.4, F10.4, F10.4, F10.4, F10.4)')
      &                  'VAR_BOT_DRAGU ij',
      &                   k, kl, var_bot_stressu(i,j,bi,bj), 
      &                   var_bot_stressv(i,j,bi,bj), 
      &                   var_bot_dragu_quadratic(i, j, bi, bj),
      &                   var_bot_dragu_linear(i, j, bi, bj),
      &                   var_bot_uscale(i,j,bi,bj),
-     &                   var_bot_vscale(i,j,bi,bj)      
+     &                   var_bot_vscale(i,j,bi,bj),
+     &                   var_bot_vert_scale(i,j,bi,bj)     
               CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT , 1)
             ENDIF
@@ -135,11 +138,16 @@ C.....Done getting the bottom stress
 
       DO j=jMin,jMax
        DO i=iMin,iMax
-         ZBL = R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj)
-        IF (rC(k).LT.ZBL) THEN
-          gU_arr(i,j) = gU_arr(i,j) + maskW(i,j,k,bi,bj) *
-     &       var_bot_stressu(i,j,bi,bj)/
-     &       var_bot_vert_scale(i,j,bi,bj)
+         ZBL = rC(k) - R_low(i,j,bi,bj) 
+         IF (ZBL.LT.var_bot_vert_scale(i,j,bi,bj)) THEN
+C         fac = ZBL*ZBL*4.0/var_bot_vert_scale(i,j,bi,bj)/
+C     &           var_bot_vert_scale(i,j,bi,bj)
+C         fac = EXP(-fac)
+C         amp = var_bot_stressu(i,j,bi,bj)*4.0/
+C     &         var_bot_vert_scale(i,j,bi,bj)/1.772
+          amp = var_bot_stressu(i,j,bi,bj) 
+          amp = amp / var_bot_vert_scale(i,j,bi,bj)
+          gU_arr(i,j) = gU_arr(i,j) + maskW(i,j,k,bi,bj)*amp
         ENDIF
        ENDDO
       ENDDO
@@ -191,20 +199,25 @@ CEOP
 
 C     !LOCAL VARIABLES:
       INTEGER i, j, kl, kk
-      _RL     ZBL 
+      _RL     ZBL, fac, amp
 
 C bottom stress is calculated above in ...APPLY_U
 
 C.....Apply the bottom stress, weighted by teh cell thickness.
       DO j=jMin,jMax
        DO i=iMin,iMax
-          ZBL = R_low(i,j,bi,bj)+var_bot_vert_scale(i,j,bi,bj)
-          IF (rC(k).LT.ZBL) THEN
-             gv_arr(i,j) = gv_arr(i,j)
-     &          +maskS(i,j,k,bi,bj)*
-     &          var_bot_stressv(i,j,bi,bj)/
-     &          var_bot_vert_scale(i,j,bi,bj)
-          ENDIF
+         ZBL = rC(k) - R_low(i,j,bi,bj)
+         IF (ZBL.LT.var_bot_vert_scale(i,j,bi,bj)) THEN 
+C         fac = ZBL*ZBL*4.0/var_bot_vert_scale(i,j,bi,bj)/
+C     &           var_bot_vert_scale(i,j,bi,bj)
+C         fac = EXP(-fac)
+C         amp = var_bot_stressv(i,j,bi,bj) * 4.0/
+C     &         var_bot_vert_scale(i,j,bi,bj)/1.772
+          amp = var_bot_stressv(i,j,bi,bj) 
+          amp = amp / var_bot_vert_scale(i,j,bi,bj)
+          gV_arr(i,j) = gV_arr(i,j) + maskW(i,j,k,bi,bj)*amp
+C          gv_arr(i,j) = gv_arr(i,j) + maskS(i,j,k,bi,bj)*amp*fac
+         endif
        ENDDO
       ENDDO
 
@@ -247,10 +260,6 @@ C     Local
 C.......keep moving upper up until it is big enough (or we hit the top)
         DO WHILE (((rC(kup) - rC(kl)).LT.Var_Bot_Drag_NScale)
      &                       .AND.(kup.GT.1))
-C          WRITE(msgBuf,'(A, I5, I5, F10.2, F10.2)') 'VAR_BOT_DRAG_Nsq',
-C     &                    kup, kl, rC(kup), rC(kL)
-C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-C     &                    SQUEEZE_RIGHT , 1)
           kup = kup - 1
           CALL FIND_RHO_SCALAR(theta(i,j,kup,bi,bj),
      &                salt(i,j,kup,bi,bj),totPhiHyd(i,j,kup,bi,bj),
@@ -276,10 +285,10 @@ C     &                    rhoup, SQRT(Nsq)
 C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
 C     &                    SQUEEZE_RIGHT , 1)
         ELSE
-          Nsq = 1.0
+          Nsq = 1.0E-6
         ENDIF
       ELSE
-        Nsq = 1.0
+        Nsq = 1.E-6
       ENDIF
 
 C.....Calculate the factors, or return 1 if they aren't being used.
