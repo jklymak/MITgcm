@@ -64,12 +64,12 @@ C calculate the velocity scale of the free-stream
               ddz = 0
               UU = 0.0
               VV = 0.0
-C              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj))
-C     &                  .AND.(kk.GT.0))
-C                ddz = ddz + drF(kk)
-C                kk = kk-1
-C              ENDDO 
-C              ddz = 0
+              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj)*0.8)
+     &                  .AND.(kk.GT.0))
+                ddz = ddz + drF(kk)
+                kk = kk-1
+              ENDDO 
+              ddz = 0
               DO WHILE ((ddz.LT.
      &                  (var_bot_vert_scale(i,j,bi,bj) * 1.2))
      &                  .AND.(kk.GT.0))
@@ -81,11 +81,16 @@ C              ddz = 0
               var_bot_vscale(i,j,bi,bj) = VV / ddz
               var_bot_uscale(i,j,bi,bj) = UU / ddz
 C.............If needed, figure out Nsq
-C              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
+              CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
 C DEBUG::::              
-              var_bot_nsq(i,j,bi,bj) = 1.0E-6
-              NfacL = 1.0
-              NfacQ = 1.0
+              var_bot_nsq(i,j,bi,bj) = Nsq
+              IF ((i.EQ.40).AND.(j.EQ.40)) THEN
+                WRITE(msgBuf, '(A, I5, I5, E14.6, E14.6, E14.6)')
+     &                  'VAR_BOT_DRAGU Nsq',
+     &                   k, kl, Nsq  , NfacL, NfacQ 
+                CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+     &                    SQUEEZE_RIGHT , 1)
+              ENDIF
 
               var_bot_stressu(i,j,bi,bj) = 
      &            -var_bot_dragu_linear(i, j, bi, bj)*NFacL*
