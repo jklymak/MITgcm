@@ -64,14 +64,14 @@ C calculate the velocity scale of the free-stream
               ddz = 0
               UU = 0.0
               VV = 0.0
-              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj)*0.8)
-     &                  .AND.(kk.GT.0))
-                ddz = ddz + drF(kk)
-                kk = kk-1
-              ENDDO 
+C              DO WHILE ((ddz.LT.var_bot_vert_scale(i,j,bi,bj)*0.8)
+C     &                  .AND.(kk.GT.0))
+C                ddz = ddz + drF(kk)
+C                kk = kk-1
+C              ENDDO 
               ddz = 0
               DO WHILE ((ddz.LT.
-     &                  (var_bot_vert_scale(i,j,bi,bj) * 0.4))
+     &                  (var_bot_vert_scale(i,j,bi,bj) * 1.2))
      &                  .AND.(kk.GT.0))
                 UU = UU + uVel(i,j,kk,bi,bj) * drF(kk)
                 VV = VV + vVel(i,j,kk,bi,bj) * drF(kk)
