@@ -71,7 +71,7 @@ C                kk = kk-1
 C              ENDDO 
               ddz = 0
               DO WHILE ((ddz.LT.
-     &                  (var_bot_vert_scale(i,j,bi,bj) * 1.0))
+     &                  (var_bot_vert_scale(i,j,bi,bj) * 0.333))
      &                  .AND.(kk.GT.0))
                 UU = UU + uVel(i,j,kk,bi,bj) * drF(kk)
                 VV = VV + vVel(i,j,kk,bi,bj) * drF(kk)
