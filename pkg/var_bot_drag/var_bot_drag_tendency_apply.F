@@ -84,13 +84,13 @@ C.............If needed, figure out Nsq
               CALL GetNfac(i,j,bi,bj,kl,myThid,NfacL,NfacQ,Nsq)
 C DEBUG::::              
               var_bot_nsq(i,j,bi,bj) = Nsq
-              IF ((i.EQ.40).AND.(j.EQ.40)) THEN
-                WRITE(msgBuf, '(A, I5, I5, E14.6, E14.6, E14.6)')
-     &                  'VAR_BOT_DRAGU Nsq',
-     &                   k, kl, Nsq  , NfacL, NfacQ 
-                CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-     &                    SQUEEZE_RIGHT , 1)
-              ENDIF
+C              IF ((i.EQ.10).AND.(j.EQ.10)) THEN
+C                WRITE(msgBuf, '(A, I5, I5, E14.6, E14.6, E14.6)')
+C     &                  'VAR_BOT_DRAGU Nsq',
+C     &                   k, kl, Nsq  , NfacL, NfacQ 
+C                CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
+C              ENDIF
 
               var_bot_stressu(i,j,bi,bj) = 
      &            -var_bot_dragu_linear(i, j, bi, bj)*NFacL*
@@ -121,20 +121,20 @@ C.............Quadratic
               var_bot_stressu(i,j,bi,bj) = 0.0
               var_bot_stressv(i,j,bi,bj) = 0.0
             ENDIF
-            IF ((i.EQ.40).AND.(j.EQ.40)) THEN
-              WRITE(msgBuf,
-     & '(A, I5, I5, E14.6, E14.6, F10.4, F10.4, F10.4, F10.4, F10.4)')
-     &                  'VAR_BOT_DRAGU ij',
-     &                   k, kl, var_bot_stressu(i,j,bi,bj), 
-     &                   var_bot_stressv(i,j,bi,bj), 
-     &                   var_bot_dragu_quadratic(i, j, bi, bj),
-     &                   var_bot_dragu_linear(i, j, bi, bj),
-     &                   var_bot_uscale(i,j,bi,bj),
-     &                   var_bot_vscale(i,j,bi,bj),
-     &                   var_bot_vert_scale(i,j,bi,bj)     
-              CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
-     &                    SQUEEZE_RIGHT , 1)
-            ENDIF
+C            IF ((i.EQ.10).AND.(j.EQ.10)) THEN
+C              WRITE(msgBuf,
+C     & '(A, I5, I5, E14.6, E14.6, F10.4, F10.4, F10.4, F10.4, F10.4)')
+C     &                  'VAR_BOT_DRAGU ij',
+C     &                   k, kl, var_bot_stressu(i,j,bi,bj), 
+C     &                   var_bot_stressv(i,j,bi,bj), 
+C     &                   var_bot_dragu_quadratic(i, j, bi, bj),
+C     &                   var_bot_dragu_linear(i, j, bi, bj),
+C     &                   var_bot_uscale(i,j,bi,bj),
+C     &                   var_bot_vscale(i,j,bi,bj),
+C     &                   var_bot_vert_scale(i,j,bi,bj)     
+C              CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
+C            ENDIF
 
           ENDDO
         ENDDO
@@ -143,8 +143,16 @@ C.....Done getting the bottom stress
 
       DO j=jMin,jMax
        DO i=iMin,iMax
-         ZBL = rC(k) - R_low(i,j,bi,bj) 
-         IF (ZBL.LT.var_bot_vert_scale(i,j,bi,bj)) THEN
+        ZBL = rC(k) - R_low(i,j,bi,bj) 
+C        IF ((i.EQ.40).AND.(j.EQ.40)) THEN
+C          WRITE(msgBuf, '(A, I5, I5, E14.6, E14.6, E14.6)')
+C     &                  'VAR_BOT_DRAGU ZBL',
+C     &     k, kl, R_low(i,j,bi,bj), ZBL, var_bot_vert_scale(i,j,bi,bj)
+C          CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
+C     &                    SQUEEZE_RIGHT , 1)
+C        ENDIF
+        IF (ZBL.LT.var_bot_vert_scale(i,j,bi,bj)) THEN
+
 C         fac = ZBL*ZBL*4.0/var_bot_vert_scale(i,j,bi,bj)/
 C     &           var_bot_vert_scale(i,j,bi,bj)
 C         fac = EXP(-fac)
@@ -253,7 +261,7 @@ C.......overturns).
 C     Local
       CHARACTER*(MAX_LEN_MBUF) msgBuf
       INTEGER kup
-      _RL     rhoup, rhodown, rhotest
+      _RL     rhoup, rhodown, rhotest, Zbl
 
       IF ((Var_Bot_Drag_LinNPow.NE.0).OR.
      &            (Var_Bot_Drag_QuadNPow.NE.0)) THEN
@@ -263,8 +271,8 @@ C     Local
      &               rhodown,myThid )
         rhoup = rhodown
 C.......keep moving upper up until it is big enough (or we hit the top)
-        DO WHILE (((rC(kup) - rC(kl)).LT.Var_Bot_Drag_NScale)
-     &                       .AND.(kup.GT.1))
+        Zbl = var_bot_vert_scale(i, j, bi, bj)*2.0
+        DO WHILE ((rC(kup) - rC(kl)).LT.(Zbl).AND.(kup.GT.1))
           kup = kup - 1
           CALL FIND_RHO_SCALAR(theta(i,j,kup,bi,bj),
      &                salt(i,j,kup,bi,bj),totPhiHyd(i,j,kup,bi,bj),
@@ -279,7 +287,6 @@ C.......keep moving upper up until it is big enough (or we hit the top)
         ENDDO
         IF (kup.LT.kl) THEN
 C.......calc Nsq
-
           Nsq = gravity*(rhodown - rhoup)/(rC(kup) - rC(kl))
           Nsq = Nsq / rhoNil
 C          WRITE(msgBuf,
@@ -293,7 +300,7 @@ C     &                    SQUEEZE_RIGHT , 1)
           Nsq = 1.0E-6
         ENDIF
       ELSE
-        Nsq = 1.E-6
+        Nsq = 1.0E-6
       ENDIF
 
 C.....Calculate the factors, or return 1 if they aren't being used.
